@@ -1,0 +1,25 @@
+---
+
+name: check if two ci-cd systems can work on github in parallel
+
+"on":
+  workflow_dispatch:
+  push:
+
+jobs:
+  yamllint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v2
+
+      - name: setup python 3.x
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: install yamllint
+        run: pip3 install yamllint
+
+      - name: run yamllint
+        run: yamllint .

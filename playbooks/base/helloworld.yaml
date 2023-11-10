@@ -1,0 +1,7 @@
+---
+- name: base job
+  hosts: all
+  pre_tasks:
+    - name: Print hello world
+      debug:
+        msg: "Hello world!"

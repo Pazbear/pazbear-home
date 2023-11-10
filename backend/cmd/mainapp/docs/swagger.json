@@ -1,0 +1,57 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "contact": {}
+    },
+    "paths": {
+        "/api/v1/healthcheck": {
+            "get": {
+                "description": "현재 서버 상태 체크",
+                "tags": [
+                    "common"
+                ],
+                "summary": "상태 체크",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/v1/user": {
+            "post": {
+                "description": "유저 생성",
+                "tags": [
+                    "users"
+                ],
+                "summary": "유저 생성",
+                "parameters": [
+                    {
+                        "description": "create user",
+                        "name": "createUserRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateUserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "models.CreateUserRequest": {
+            "type": "object",
+            "properties": {
+                "user": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

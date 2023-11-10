@@ -1,0 +1,35 @@
+definitions:
+  models.CreateUserRequest:
+    properties:
+      user:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /api/v1/healthcheck:
+    get:
+      description: 현재 서버 상태 체크
+      responses:
+        "200":
+          description: OK
+      summary: 상태 체크
+      tags:
+      - common
+  /api/v1/user:
+    post:
+      description: 유저 생성
+      parameters:
+      - description: create user
+        in: body
+        name: createUserRequest
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateUserRequest'
+      responses:
+        "201":
+          description: Created
+      summary: 유저 생성
+      tags:
+      - users
+swagger: "2.0"

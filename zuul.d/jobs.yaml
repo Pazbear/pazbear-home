@@ -1,0 +1,8 @@
+- job:
+    name: base-job
+    description: |
+      The base-minimal job
+    run: 
+      - playbooks/base/helloworld.yaml
+      - playbooks/base/sleep10s.yaml
+    timeout: 1800

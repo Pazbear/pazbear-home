@@ -1,0 +1,14 @@
+- project:
+    default-branch: main
+    gh_check:
+      jobs:
+        - base-job
+    gh_gate:
+      jobs:
+        - base-job
+    gh_post:
+      jobs:
+        - base-job
+    gh_tag:
+      jobs:
+        - base-job

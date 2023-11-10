@@ -1,0 +1,7 @@
+---
+- name: sleep 30s
+  hosts: all
+  tasks:
+    - name: Sleep 30 seconds
+      pause:
+        seconds: 30
