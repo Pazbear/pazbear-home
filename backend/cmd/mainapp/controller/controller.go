@@ -13,7 +13,7 @@ import (
 )
 
 type Controller struct {
-	AppConfig    config.Config
+	AppConfig config.Config
 }
 
 func NewController(appConfig config.Config) (*Controller, error) {
@@ -39,10 +39,13 @@ func (c *Controller) NewRouter() *gin.Engine {
 		v1 := api.Group("/v1")
 		{
 			v1.GET("/healthcheck", c.HealthCheck)
-			
+
 			v1.Group("/travel-log")
 			{
-				
+				v1.GET("", c.ListTravelLogs)
+				v1.GET("", c.GetTravelLog)
+				v1.POST("", c.CreateTravelLog)
+				v1.DELETE("", c.DeleteTravelLog)
 			}
 		}
 	}
