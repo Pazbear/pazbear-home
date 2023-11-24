@@ -42,10 +42,10 @@ func (c *Controller) NewRouter() *gin.Engine {
 
 			v1.Group("/travel-log")
 			{
-				v1.GET("", c.ListTravelLogs)
-				v1.GET("", c.GetTravelLog)
-				v1.POST("", c.CreateTravelLog)
-				v1.DELETE("", c.DeleteTravelLog)
+				// v1.GET("", c.ListTravelLogs)
+				// v1.GET("", c.GetTravelLog)
+				// v1.POST("", c.CreateTravelLog)
+				// v1.DELETE("", c.DeleteTravelLog)
 			}
 		}
 	}
