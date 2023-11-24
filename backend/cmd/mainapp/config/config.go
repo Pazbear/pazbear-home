@@ -7,12 +7,20 @@ import (
 	"os"
 )
 
+type Target struct {
+	Exchange   string `json:"exchange"`
+	RoutingKey string `json:"routing_key"`
+}
+
+type MsgQueue struct {
+	URL    string `json:"url"`
+	Target Target `json:"target"`
+}
+
 type Config struct {
 	Address string `json:"address"`
 	Port    int    `json:"port"`
-}
-
-func (c *Config) Init() {
+	MQ      MsgQueue `json:"mq"`
 }
 
 const (

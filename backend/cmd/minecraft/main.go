@@ -40,9 +40,14 @@ func main() {
 
 func handle(c context.Context, rw *amqprpc.ResponseWriter, d amqp.Delivery) {
 	var msg models.Message
+	var res models.MQResponse
 	err := json.Unmarshal(d.Body, &msg)
 	if err != nil {
-		fmt.Fprint(rw, "invalid message type")
+		res.Success = false
+		res.Output = models.ErrorLog{
+			Err: "invalid message type",
+		}
+		fmt.Fprint(rw, res)
 	}
 	switch msg.Command {
 	case "turnon":
@@ -50,19 +55,38 @@ func handle(c context.Context, rw *amqprpc.ResponseWriter, d amqp.Delivery) {
 		turnonCmd.Stdout = os.Stdout
 		turnonCmd.Stderr = os.Stderr
 		if err := turnonCmd.Run(); err != nil {
-			fmt.Println(err)
+			res.Success = false
+			res.Output = models.ErrorLog{
+				Err: err.Error(),
+			}
+			fmt.Fprint(rw, res)
+		}else{
+			res.Success = true
+			res.Output = models.OutputLog{
+				Output: "Minecraft Server is Started",
+			}
+			fmt.Fprint(rw, res)
 		}
-		d.Ack(false)
 
 	case "turnoff":
-		turnonCmd := exec.Command("docker-compose", "exec", "-i", "minecraft-mc-1", "rcon-cli", "stop")
-		turnonCmd.Stdout = os.Stdout
-		turnonCmd.Stderr = os.Stderr
-		if err := turnonCmd.Run(); err != nil {
-			fmt.Println(err)
+		turnoffCmd := exec.Command("docker-compose", "exec", "-i", "minecraft-mc-1", "rcon-cli", "stop")
+		turnoffCmd.Stdout = os.Stdout
+		turnoffCmd.Stderr = os.Stderr
+		if err := turnoffCmd.Run(); err != nil {
+			res.Success = false
+			res.Output = models.ErrorLog{
+				Err: err.Error(),
+			}
+			fmt.Fprint(rw, res)
+		}else{
+			res.Success = true
+			res.Output = models.OutputLog{
+				Output: "Minecraft Server is Stopped",
+			}
+			fmt.Fprint(rw, res)
 		}
-		d.Ack(false)
 	case "status":
-
+		
 	}
+	d.Ack(false)
 }

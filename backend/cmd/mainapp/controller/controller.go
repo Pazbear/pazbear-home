@@ -2,10 +2,14 @@ package controller
 
 import (
 	"fmt"
+	"log"
 	"net/http"
+	"os"
+
 	"pazbear-backend/cmd/mainapp/config"
 	"pazbear-backend/cmd/mainapp/docs"
 
+	amqprpc "github.com/0x4b53/amqp-rpc"
 	"github.com/gin-gonic/gin"
 
 	swaggerFiles "github.com/swaggo/files"
@@ -13,11 +17,16 @@ import (
 )
 
 type Controller struct {
+	rpcClient *amqprpc.Client
 	AppConfig config.Config
 }
 
 func NewController(appConfig config.Config) (*Controller, error) {
-	return &Controller{AppConfig: appConfig}, nil
+	rpcClient := amqprpc.NewClient(appConfig.MQ.URL)
+		//ReplyToQueueName을 일정한 값으로 설정 시 apimanager가 재실행되어도 taskmanager가 보내온 반환값을 받을 수 있음
+	rpcClient.WithErrorLogger(log.New(os.Stdout, "ERROR - ", log.LstdFlags).Printf)
+	rpcClient.WithDebugLogger(log.New(os.Stdout, "DEBUG - ", log.LstdFlags).Printf)
+	return &Controller{rpcClient:rpcClient, AppConfig: appConfig}, nil
 }
 
 // @Summary     상태 체크
@@ -46,6 +55,12 @@ func (c *Controller) NewRouter() *gin.Engine {
 				// v1.GET("", c.GetTravelLog)
 				// v1.POST("", c.CreateTravelLog)
 				// v1.DELETE("", c.DeleteTravelLog)
+			}
+			mc := v1.Group("/mc")
+			{
+				mc.GET("", c.TurnOnServer)
+				mc.GET("", c.TurnOffServer)
+				mc.GET("", c.StatusServer)
 			}
 		}
 	}
