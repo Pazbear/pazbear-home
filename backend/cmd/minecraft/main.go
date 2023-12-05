@@ -1,4 +1,4 @@
-package minecraft
+package main
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
+	"pazbear-backend/cmd/minecraft/config"
 	"pazbear-backend/cmd/minecraft/models"
 	"syscall"
 
@@ -16,17 +17,26 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
+var appConfig config.Config
+
 func main() {
+	appConfig, err := config.AppConfig()
+	if err != nil {
+		log.Panic(err)
+	}
+
 	debugLogger := log.New(os.Stdout, "DEBUG - ", log.LstdFlags)
 	errorLogger := log.New(os.Stdout, "ERROR - ", log.LstdFlags)
 
-	s := amqprpc.NewServer("amqp://admin:mk0607@localhost:5672/").
+	s := amqprpc.NewServer(appConfig.MQ.URL).
 		AddMiddleware(amqprpcmw.PanicRecoveryLogging(errorLogger.Printf))
 
 	s.WithErrorLogger(errorLogger.Printf)
 	s.WithDebugLogger(debugLogger.Printf)
 
-	s.Bind(amqprpc.TopicBinding("minecraft", "minecraft", handle))
+	binding := amqprpc.TopicBinding(appConfig.MQ.Target.RoutingKey, appConfig.MQ.Target.RoutingKey, handle)
+	binding.ExchangeName = appConfig.MQ.Target.Exchange
+	s.Bind(binding)
 
 	go func() {
 		sigs := make(chan os.Signal, 1)
@@ -49,9 +59,10 @@ func handle(c context.Context, rw *amqprpc.ResponseWriter, d amqp.Delivery) {
 		}
 		fmt.Fprint(rw, res)
 	}
+	fmt.Println(msg.Command)
 	switch msg.Command {
 	case "turnon":
-		turnonCmd := exec.Command("docker-compose", "-f", "/Users/mkcho1997/Project/pazbear-home/minecraft/dawncraft-docker-compose.yml", "up", "-d")
+		turnonCmd := exec.Command("docker-compose", "-f", "/Users/mkcho1997/Project/pazbear-home/minecraft/darkrpg-docker-compose.yml", "up", "-d")
 		turnonCmd.Stdout = os.Stdout
 		turnonCmd.Stderr = os.Stderr
 		if err := turnonCmd.Run(); err != nil {
@@ -59,17 +70,19 @@ func handle(c context.Context, rw *amqprpc.ResponseWriter, d amqp.Delivery) {
 			res.Output = models.ErrorLog{
 				Err: err.Error(),
 			}
-			fmt.Fprint(rw, res)
-		}else{
+			result, _ := json.Marshal(res)
+			fmt.Fprint(rw, string(result))
+		} else {
 			res.Success = true
 			res.Output = models.OutputLog{
 				Output: "Minecraft Server is Started",
 			}
-			fmt.Fprint(rw, res)
+			result, _ := json.Marshal(res)
+			fmt.Fprint(rw, string(result))
 		}
 
 	case "turnoff":
-		turnoffCmd := exec.Command("docker-compose", "exec", "-i", "minecraft-mc-1", "rcon-cli", "stop")
+		turnoffCmd := exec.Command("docker", "exec", "-i", "minecraft-mc-1", "rcon-cli", "stop")
 		turnoffCmd.Stdout = os.Stdout
 		turnoffCmd.Stderr = os.Stderr
 		if err := turnoffCmd.Run(); err != nil {
@@ -77,16 +90,32 @@ func handle(c context.Context, rw *amqprpc.ResponseWriter, d amqp.Delivery) {
 			res.Output = models.ErrorLog{
 				Err: err.Error(),
 			}
-			fmt.Fprint(rw, res)
-		}else{
+			result, _ := json.Marshal(res)
+			fmt.Fprint(rw, string(result))
+		} else {
 			res.Success = true
 			res.Output = models.OutputLog{
 				Output: "Minecraft Server is Stopped",
 			}
-			fmt.Fprint(rw, res)
+			result, _ := json.Marshal(res)
+			fmt.Fprint(rw, string(result))
 		}
 	case "status":
-		
+		statusCmd := exec.Command("docker", "inspect", "-f", "'{{.State.Status}}'", "minecraft-mc-1")
+		if statusCmdOut, err := statusCmd.Output(); err != nil {
+			res.Success = false
+			res.Output = models.ErrorLog{
+				Err: err.Error(),
+			}
+			result, _ := json.Marshal(res)
+			fmt.Fprint(rw, string(result))
+		} else {
+			res.Success = true
+			res.Output = models.SvrStatus{
+				Status: string(statusCmdOut),
+			}
+			result, _ := json.Marshal(res)
+			fmt.Fprint(rw, string(result))
+		}
 	}
-	d.Ack(false)
 }

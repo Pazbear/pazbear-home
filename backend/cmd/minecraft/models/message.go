@@ -9,9 +9,9 @@ type Message struct {
 	Body    interface{}
 }
 
-type MQResponse struct{
+type MQResponse struct {
 	Success bool
-	Output interface{}
+	Output  interface{}
 }
 
 type ErrorLog struct {
@@ -20,4 +20,8 @@ type ErrorLog struct {
 
 type OutputLog struct {
 	Output string
+}
+
+type SvrStatus struct {
+	Status string
 }

@@ -1,8 +1,8 @@
 definitions:
-  models.CreateUserRequest:
+  models.TurnMCRequest:
     properties:
-      user:
-        type: string
+      turnOnOff:
+        type: boolean
     type: object
 info:
   contact: {}
@@ -16,20 +16,33 @@ paths:
       summary: 상태 체크
       tags:
       - common
-  /api/v1/user:
+  /api/v1/mc/status:
+    get:
+      description: 마인크래프트 서버 상태 확인
+      responses:
+        "200":
+          description: OK
+      summary: 서버 상태 확인
+      tags:
+      - mc
+  /api/v1/mc/turn:
     post:
-      description: 유저 생성
+      consumes:
+      - application/json
+      description: 마인크래프트 서버 켜기/끄기
       parameters:
-      - description: create user
+      - description: 서버 전원 ON/OFF
         in: body
-        name: createUserRequest
+        name: request
         required: true
         schema:
-          $ref: '#/definitions/models.CreateUserRequest'
+          $ref: '#/definitions/models.TurnMCRequest'
+      produces:
+      - application/json
       responses:
-        "201":
-          description: Created
-      summary: 유저 생성
+        "200":
+          description: OK
+      summary: 서버 켜기/끄기
       tags:
-      - users
+      - mc
 swagger: "2.0"

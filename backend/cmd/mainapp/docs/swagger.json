@@ -18,38 +18,58 @@
                 }
             }
         },
-        "/api/v1/user": {
-            "post": {
-                "description": "유저 생성",
+        "/api/v1/mc/status": {
+            "get": {
+                "description": "마인크래프트 서버 상태 확인",
                 "tags": [
-                    "users"
+                    "mc"
                 ],
-                "summary": "유저 생성",
+                "summary": "서버 상태 확인",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/v1/mc/turn": {
+            "post": {
+                "description": "마인크래프트 서버 켜기/끄기",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "mc"
+                ],
+                "summary": "서버 켜기/끄기",
                 "parameters": [
                     {
-                        "description": "create user",
-                        "name": "createUserRequest",
+                        "description": "서버 전원 ON/OFF",
+                        "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.CreateUserRequest"
+                            "$ref": "#/definitions/models.TurnMCRequest"
                         }
                     }
                 ],
                 "responses": {
-                    "201": {
-                        "description": "Created"
+                    "200": {
+                        "description": "OK"
                     }
                 }
             }
         }
     },
     "definitions": {
-        "models.CreateUserRequest": {
+        "models.TurnMCRequest": {
             "type": "object",
             "properties": {
-                "user": {
-                    "type": "string"
+                "turnOnOff": {
+                    "type": "boolean"
                 }
             }
         }

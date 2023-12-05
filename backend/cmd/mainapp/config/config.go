@@ -18,14 +18,16 @@ type MsgQueue struct {
 }
 
 type Config struct {
-	Address string `json:"address"`
-	Port    int    `json:"port"`
+	Address string   `json:"address"`
+	Port    int      `json:"port"`
 	MQ      MsgQueue `json:"mq"`
 }
 
 const (
 	cnfPath = "./config/config.conf"
 )
+
+func (c *Config) Init() {}
 
 func AppConfig() (Config, error) {
 	var config Config

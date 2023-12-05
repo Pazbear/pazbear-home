@@ -23,10 +23,10 @@ type Controller struct {
 
 func NewController(appConfig config.Config) (*Controller, error) {
 	rpcClient := amqprpc.NewClient(appConfig.MQ.URL)
-		//ReplyToQueueName을 일정한 값으로 설정 시 apimanager가 재실행되어도 taskmanager가 보내온 반환값을 받을 수 있음
+	//ReplyToQueueName을 일정한 값으로 설정 시 apimanager가 재실행되어도 taskmanager가 보내온 반환값을 받을 수 있음
 	rpcClient.WithErrorLogger(log.New(os.Stdout, "ERROR - ", log.LstdFlags).Printf)
 	rpcClient.WithDebugLogger(log.New(os.Stdout, "DEBUG - ", log.LstdFlags).Printf)
-	return &Controller{rpcClient:rpcClient, AppConfig: appConfig}, nil
+	return &Controller{rpcClient: rpcClient, AppConfig: appConfig}, nil
 }
 
 // @Summary     상태 체크
@@ -58,9 +58,9 @@ func (c *Controller) NewRouter() *gin.Engine {
 			}
 			mc := v1.Group("/mc")
 			{
-				mc.GET("", c.TurnOnServer)
-				mc.GET("", c.TurnOffServer)
-				mc.GET("", c.StatusServer)
+				mc.POST("/turn", c.TurnServer)
+				mc.GET("/status", c.StatusServer)
+				//자동 백업 및  백업 리스트, 백업 불러오기
 			}
 		}
 	}

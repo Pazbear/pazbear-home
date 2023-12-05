@@ -1,17 +1,13 @@
 package models
 
-type TurnMCRequest struct {
-	TurnOnOff bool
-}
-
 type Message struct {
 	Command string
 	Body    interface{}
 }
 
-type MQResponse struct{
+type MQResponse struct {
 	Success bool
-	Output interface{}
+	Output  interface{}
 }
 
 type ErrorLog struct {
